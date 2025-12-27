@@ -1,158 +1,149 @@
-# SD Studio Web 🎨
+# SD Studio Web
 
-**Vercel-deployable web interface for Stable Diffusion** - Control your Automatic1111/ComfyUI server from anywhere.
+![CI](https://github.com/wizelements/sd-studio-web/actions/workflows/ci.yml/badge.svg)
+![CodeQL](https://github.com/wizelements/sd-studio-web/actions/workflows/codeql.yml/badge.svg)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/sd-studio-web)
+Vercel-deployable web interface for Stable Diffusion. Control your Automatic1111 or ComfyUI server from anywhere.
+
+**Demo**: [sd-studio-web.vercel.app](https://sd-studio-web.vercel.app)
+
+---
 
 ## Features
 
-- 🌐 **Remote Control** - Connect to your home PC running Automatic1111
-- 📱 **Mobile-First** - Fully responsive, works great on Android/iOS
-- 🔓 **Uncensored** - Use any model, no restrictions
-- ⚡ **Real-time Progress** - Live preview during generation
-- 🖼️ **Gallery** - View, download, reuse settings
-- 🔒 **Privacy** - No data stored on server, direct API calls
-- 🎨 **Dark Mode** - Beautiful dark UI
+- **Remote Control** - Connect to your home GPU running Automatic1111
+- **Mobile-First** - Fully responsive, works on Android/iOS
+- **Real-time Progress** - Live preview during image generation
+- **Gallery** - View, download, and reuse generation settings
+- **Privacy** - No data stored on server, direct API calls to your backend
+- **Dark Mode** - Clean dark UI optimized for long sessions
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Framework | Next.js 14 (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS |
+| State | Zustand |
+| Icons | Lucide React |
+| Deployment | Vercel |
+
+---
 
 ## Quick Start
 
-### 1. Deploy to Vercel
+### Prerequisites
+
+- Node.js 18+
+- npm or pnpm
+- Stable Diffusion backend (Automatic1111 with API enabled)
+
+### Installation
 
 ```bash
-# Clone and deploy
-git clone https://github.com/yourusername/sd-studio-web
+git clone https://github.com/wizelements/sd-studio-web.git
 cd sd-studio-web
 npm install
-vercel
+cp .env.example .env.local
+npm run dev
 ```
 
-Or click the "Deploy with Vercel" button above.
+Open [http://localhost:3000](http://localhost:3000).
 
-### 2. Set Up Your PC Server
+---
 
-On your PC with GPU, set up Automatic1111:
+## Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `NEXT_PUBLIC_SD_API_URL` | Your Stable Diffusion API endpoint | Yes |
+| `SD_API_KEY` | API key if your backend requires auth | No |
+
+Create `.env.local` from `.env.example` and configure your backend URL.
+
+---
+
+## Backend Setup
+
+On your PC with GPU, configure Automatic1111:
 
 ```bash
-# Clone Automatic1111
-git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui
-cd stable-diffusion-webui
-
-# Download uncensored models (examples)
-# - Pony Diffusion XL: civitai.com/models/xxx
-# - CyberRealistic: civitai.com/models/xxx
-# Put them in models/Stable-diffusion/
-
-# Start with API enabled
-# Windows (edit webui-user.bat):
+# Windows (webui-user.bat)
 set COMMANDLINE_ARGS=--api --listen --cors-allow-origins=*
 
-# Linux/Mac (edit webui-user.sh):
+# Linux/Mac (webui-user.sh)
 export COMMANDLINE_ARGS="--api --listen --cors-allow-origins=*"
-
-# Run
-./webui.sh  # or webui-user.bat on Windows
 ```
 
-### 3. Expose Your Server (Choose One)
+For remote access, use Cloudflare Tunnel or ngrok to expose your local API.
 
-**Option A: Same Network (Local)**
-- Just use your PC's local IP: `http://192.168.1.100:7860`
+---
 
-**Option B: Cloudflare Tunnel (Recommended for Remote)**
-```bash
-# Install cloudflared
-# Create tunnel
-cloudflared tunnel --url http://localhost:7860
-
-# Get your URL like: https://abc-xyz.trycloudflare.com
-```
-
-**Option C: Tailscale (VPN)**
-- Install Tailscale on both devices
-- Use Tailscale IP: `http://100.x.x.x:7860`
-
-### 4. Connect from SD Studio
-
-1. Open your deployed SD Studio URL
-2. Enter your server URL
-3. Click Connect
-4. Start generating!
-
-## Development
-
-```bash
-# Install dependencies
-npm install
-
-# Run dev server
-npm run dev
-
-# Build for production
-npm run build
-
-# Type check
-npm run type-check
-```
-
-## Architecture
+## Project Structure
 
 ```
 src/
-├── app/
-│   ├── layout.tsx      # Root layout
-│   ├── page.tsx        # Main page
-│   └── globals.css     # Global styles
-├── components/
-│   ├── Header.tsx      # App header
-│   ├── ConnectionPanel.tsx  # Server connection
-│   ├── GenerationPanel.tsx  # Generation controls
-│   └── GalleryPanel.tsx     # Image gallery
-├── lib/
-│   ├── api.ts          # A1111 API client
-│   ├── store.ts        # Zustand state
-│   └── utils.ts        # Utilities
-└── types/
-    └── index.ts        # TypeScript types
+├── app/           # Next.js App Router pages
+├── components/    # React components (PromptForm, Gallery, etc.)
+├── lib/           # API client and utilities
+└── types/         # TypeScript type definitions
 ```
 
-## Recommended Models
+---
 
-| Model | Type | Best For |
-|-------|------|----------|
-| Pony Diffusion XL | SDXL | Versatile, uncensored |
-| CyberRealistic | SD 1.5 | Photorealistic |
-| Flux.1 Dev (abliterated) | Flux | Latest architecture |
-| AutismMix | SD 1.5 | Anime/artistic |
-| Realistic Vision | SD 1.5 | Portraits |
+## Scripts
 
-Download from [Civitai](https://civitai.com) or [Hugging Face](https://huggingface.co).
-
-## Security Notes
-
-- **CORS**: Your A1111 server needs `--cors-allow-origins=*` or your Vercel domain
-- **API Key**: Optional authentication supported
-- **HTTPS**: Cloudflare Tunnel provides free HTTPS
-- **No Server Storage**: All data stays in your browser (localStorage)
-
-## Troubleshooting
-
-### "Cannot connect to server"
-1. Check if A1111 is running with `--api --listen`
-2. Verify the URL is correct (include port)
-3. Check CORS settings
-4. Try with `http://` not `https://` for local
-
-### "CORS error"
-Add to your A1111 launch args:
-```
---cors-allow-origins=https://your-app.vercel.app
+```bash
+npm run dev        # Start development server
+npm run build      # Production build
+npm run start      # Start production server
+npm run lint       # Run ESLint
+npm run type-check # TypeScript validation
 ```
 
-### Models not loading
-1. Click refresh in model selector
-2. Check A1111 console for errors
-3. Ensure models are in correct folder
+---
+
+## Deployment
+
+### Vercel (Recommended)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/wizelements/sd-studio-web)
+
+1. Click Deploy or import from GitHub
+2. Set environment variables
+3. Deploy
+
+### Docker
+
+```bash
+docker build -t sd-studio-web .
+docker run -p 3000:3000 --env-file .env.local sd-studio-web
+```
+
+---
+
+## Roadmap
+
+- [ ] ComfyUI workflow support
+- [ ] Image-to-image generation
+- [ ] ControlNet integration
+- [ ] Prompt templates and favorites
+
+---
+
+## Security
+
+See [SECURITY.md](SECURITY.md) for vulnerability reporting.
+
+---
 
 ## License
 
-MIT
+[MIT](LICENSE)
+
+---
+
+Built by [Cod3BlackAgency](https://github.com/wizelements)
