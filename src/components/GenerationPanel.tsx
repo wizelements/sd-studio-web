@@ -59,9 +59,11 @@ export function GenerationPanel() {
 
     setError('')
     setGenerating(true)
+    const startTime = Date.now()
 
     try {
       const response = await sdApi.txt2img(generationParams)
+      const duration = Date.now() - startTime
       
       for (const base64 of response.images) {
         const image: GeneratedImage = {
@@ -74,6 +76,26 @@ export function GenerationPanel() {
         }
         addImage(image)
       }
+
+      // Track generation for analytics (non-blocking)
+      try {
+        fetch('http://127.0.0.1:5001/api/track', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: currentModel,
+            width: generationParams.width,
+            height: generationParams.height,
+            steps: generationParams.steps,
+            batch_size: generationParams.batchSize,
+            duration_ms: duration,
+            seed: generationParams.seed,
+            cfg_scale: generationParams.cfgScale,
+            sampler: generationParams.sampler,
+            prompt: generationParams.prompt.slice(0, 200),
+          }),
+        }).catch(() => {})
+      } catch {}
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Generation failed')
     } finally {
