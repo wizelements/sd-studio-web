@@ -47,7 +47,7 @@ const PRODUCTS: EcosystemProduct[] = [
     id: 'tradealert',
     name: 'TradeAlert',
     tagline: 'Real-Time Trading Signals',
-    url: '#',
+    url: 'https://ktradealerts.vercel.app',
   },
 ];
 
