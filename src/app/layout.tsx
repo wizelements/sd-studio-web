@@ -1,14 +1,30 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import { ServiceWorkerRegister } from '@/components/ServiceWorkerRegister'
 
 const inter = Inter({ subsets: ['latin'] })
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: '#0f172a',
+}
 
 export const metadata: Metadata = {
   title: 'SD Studio - Stable Diffusion Control Center',
   description: 'Control your Stable Diffusion server from anywhere. Connect to Automatic1111 or ComfyUI.',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
-  themeColor: '#0f172a',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'SD Studio',
+  },
+  formatDetection: {
+    telephone: false,
+  },
 }
 
 export default function RootLayout({
@@ -18,7 +34,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
+      <head>
+        <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
+        <link rel="apple-touch-icon" href="/icons/icon.svg" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+      </head>
       <body className={`${inter.className} antialiased min-h-screen bg-dark-900`}>
+        <ServiceWorkerRegister />
         {children}
       </body>
     </html>
