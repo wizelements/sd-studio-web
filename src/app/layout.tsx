@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { ServiceWorkerRegister } from '@/components/ServiceWorkerRegister'
+import { EcosystemFooter } from '@/components/EcosystemFooter'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -39,9 +40,12 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon.svg" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
       </head>
-      <body className={`${inter.className} antialiased min-h-screen bg-dark-900`}>
+      <body className={`${inter.className} antialiased min-h-screen bg-dark-900 flex flex-col`}>
         <ServiceWorkerRegister />
-        {children}
+        <main className="flex-1">
+          {children}
+        </main>
+        <EcosystemFooter currentProduct="sd-studio" />
       </body>
     </html>
   )
