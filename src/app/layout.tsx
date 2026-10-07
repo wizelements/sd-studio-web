@@ -16,7 +16,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: 'SD Studio - Stable Diffusion Control Center',
-  description: 'Control your Stable Diffusion server from anywhere. Connect to Automatic1111 or ComfyUI.',
+  description: 'Control your Automatic1111 Stable Diffusion server from a responsive remote web interface.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
