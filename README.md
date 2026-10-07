@@ -1,149 +1,129 @@
-# SD Studio Web
+# SD Studio Web — Remote Stable Diffusion Control Surface
 
-![CI](https://github.com/wizelements/sd-studio-web/actions/workflows/ci.yml/badge.svg)
-![CodeQL](https://github.com/wizelements/sd-studio-web/actions/workflows/codeql.yml/badge.svg)
+A Vercel-deployable, mobile-friendly web interface for controlling an **Automatic1111 Stable Diffusion API** from another device.
 
-Vercel-deployable web interface for Stable Diffusion. Control your Automatic1111 or ComfyUI server from anywhere.
+**Live demo:** https://sd-studio-web.vercel.app
 
-**Demo**: [sd-studio-web.vercel.app](https://sd-studio-web.vercel.app)
+[![CI](https://github.com/wizelements/sd-studio-web/actions/workflows/ci.yml/badge.svg)](https://github.com/wizelements/sd-studio-web/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/wizelements/sd-studio-web/actions/workflows/codeql.yml/badge.svg)](https://github.com/wizelements/sd-studio-web/actions/workflows/codeql.yml)
 
----
+> **Status:** Retained technical asset. The public demo returned HTTP 200 on **October 7, 2026**. Automatic1111 is the implemented backend path. ComfyUI appears in type/metadata scaffolding but is **not yet implemented as a complete workflow** and is therefore not claimed as a working capability.
 
-## Features
+## Outcome
 
-- **Remote Control** - Connect to your home GPU running Automatic1111
-- **Mobile-First** - Fully responsive, works on Android/iOS
-- **Real-time Progress** - Live preview during image generation
-- **Gallery** - View, download, and reuse generation settings
-- **Privacy** - No data stored on server, direct API calls to your backend
-- **Dark Mode** - Clean dark UI optimized for long sessions
+SD Studio separates the interaction surface from the GPU machine so a user can operate image generation from a phone, tablet, or remote browser while keeping the model runtime on their own backend.
 
----
+Implemented product surfaces include:
 
-## Tech Stack
+- Automatic1111 server connection;
+- text-to-image generation controls;
+- mobile-first responsive UI;
+- generation progress/state handling;
+- gallery/history-oriented UI;
+- dark interface;
+- Vercel-deployable frontend;
+- CI and CodeQL workflows.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    U[Phone / browser] --> W[Next.js SD Studio]
+    W --> C[Connection configuration]
+    C --> T[Protected tunnel / network path]
+    T --> A[Automatic1111 API]
+    A --> G[GPU / model runtime]
+    A --> W
+    CI[GitHub Actions] --> W
+```
+
+## Current stack
 
 | Layer | Technology |
-|-------|------------|
-| Framework | Next.js 14 (App Router) |
+| --- | --- |
+| Framework | Next.js 14.2 |
 | Language | TypeScript |
-| Styling | Tailwind CSS |
+| UI | React 18 + Tailwind CSS |
 | State | Zustand |
 | Icons | Lucide React |
-| Deployment | Vercel |
+| Backend target | Automatic1111 API |
+| Hosting | Vercel |
+| Quality | GitHub Actions CI + CodeQL |
 
----
+## Quick start
 
-## Quick Start
-
-### Prerequisites
-
-- Node.js 18+
-- npm or pnpm
-- Stable Diffusion backend (Automatic1111 with API enabled)
-
-### Installation
+### Frontend
 
 ```bash
 git clone https://github.com/wizelements/sd-studio-web.git
 cd sd-studio-web
-npm install
+npm ci
 cp .env.example .env.local
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+### Backend
 
----
+Run Automatic1111 with its API enabled. Do **not** expose an unauthenticated Stable Diffusion API directly to the public internet.
 
-## Environment Variables
+Prefer one of these patterns:
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `NEXT_PUBLIC_SD_API_URL` | Your Stable Diffusion API endpoint | Yes |
-| `SD_API_KEY` | API key if your backend requires auth | No |
+- private network/VPN access;
+- an authenticated reverse proxy;
+- an access-controlled Cloudflare Tunnel;
+- another authenticated tunnel/proxy that restricts who can reach the backend.
 
-Create `.env.local` from `.env.example` and configure your backend URL.
+Avoid permissive wildcard CORS as a substitute for access control.
 
----
+## Configuration
 
-## Backend Setup
+Use `.env.example` as the current configuration inventory.
 
-On your PC with GPU, configure Automatic1111:
+A remote backend URL may be public from the browser's perspective, so treat the backend endpoint as a trust boundary. If an API key or proxy credential is used, verify whether it is safe to expose to client-side code before putting it in a `NEXT_PUBLIC_*` variable.
 
-```bash
-# Windows (webui-user.bat)
-set COMMANDLINE_ARGS=--api --listen --cors-allow-origins=*
-
-# Linux/Mac (webui-user.sh)
-export COMMANDLINE_ARGS="--api --listen --cors-allow-origins=*"
-```
-
-For remote access, use Cloudflare Tunnel or ngrok to expose your local API.
-
----
-
-## Project Structure
-
-```
-src/
-├── app/           # Next.js App Router pages
-├── components/    # React components (PromptForm, Gallery, etc.)
-├── lib/           # API client and utilities
-└── types/         # TypeScript type definitions
-```
-
----
-
-## Scripts
+## Quality gates
 
 ```bash
-npm run dev        # Start development server
-npm run build      # Production build
-npm run start      # Start production server
-npm run lint       # Run ESLint
-npm run type-check # TypeScript validation
+npm ci
+npm run lint
+npm run type-check
+npm run build
 ```
 
----
-
-## Deployment
-
-### Vercel (Recommended)
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/wizelements/sd-studio-web)
-
-1. Click Deploy or import from GitHub
-2. Set environment variables
-3. Deploy
-
-### Docker
-
-```bash
-docker build -t sd-studio-web .
-docker run -p 3000:3000 --env-file .env.local sd-studio-web
-```
-
----
-
-## Roadmap
-
-- [ ] ComfyUI workflow support
-- [ ] Image-to-image generation
-- [ ] ControlNet integration
-- [ ] Prompt templates and favorites
-
----
+The CI workflow runs lint, type-check, and build on pushes/PRs. CodeQL is configured separately.
 
 ## Security
 
-See [SECURITY.md](SECURITY.md) for vulnerability reporting.
+See [SECURITY.md](SECURITY.md).
 
----
+The primary security risk is not the Vercel shell itself; it is exposing a GPU/model API too broadly. Protect the backend with real authentication/network controls and assume generation endpoints can consume meaningful compute.
+
+## Current limitations
+
+- **ComfyUI:** not yet implemented as a complete working backend workflow.
+- **Image-to-image:** roadmap item.
+- **ControlNet:** roadmap item.
+- **Prompt templates/favorites:** roadmap item.
+- This repository does not provision or secure the GPU backend for you.
+- A live frontend does not prove that a user's private backend is reachable, authenticated, or healthy.
+
+## Roadmap
+
+- [ ] Complete and test ComfyUI workflow support
+- [ ] Image-to-image generation
+- [ ] ControlNet integration
+- [ ] Prompt templates and favorites
+- [ ] Add current product screenshot/GIF to the repository proof layer
 
 ## License
 
 [MIT](LICENSE)
 
+## Business / engineering value
+
+SD Studio demonstrates a reusable pattern for **remote control of local or private AI infrastructure**: a lightweight public/user-facing surface can remain separate from the expensive compute node, provided routing and authorization are handled deliberately.
+
 ---
 
-Built by [Cod3BlackAgency](https://github.com/wizelements)
+**Cod3Black Agency / wizelements**  
+**Last portfolio verification:** October 7, 2026
